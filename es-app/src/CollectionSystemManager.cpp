@@ -26,9 +26,9 @@ CollectionSystemManager::CollectionSystemManager(Window* window) : mWindow(windo
 {
 	CollectionSystemDecl systemDecls[] = {
 		//type                  name            long name            //default sort              // theme folder            // isCustom
-		{ AUTO_ALL_GAMES,       "all",          "all games",         "filename, ascending",      "auto-allgames",           false },
-		{ AUTO_LAST_PLAYED,     "recent",       "last played",       "last played, descending",  "auto-lastplayed",         false },
-		{ AUTO_FAVORITES,       "favorites",    "favorites",         "filename, ascending",      "auto-favorites",          false },
+		{ AUTO_ALL_GAMES,       "전체",          "전체 게임",         "filename, ascending",      "auto-allgames",           false },
+		{ AUTO_LAST_PLAYED,     "최근",       "최근 실행",       "last played, descending",  "auto-lastplayed",         false },
+		{ AUTO_FAVORITES,       "즐겨찾기",    "즐겨찾기",         "filename, ascending",      "auto-favorites",          false },
 		{ CUSTOM_COLLECTION,    myCollectionsName,  "collections",    "filename, ascending",      "custom-collections",      true }
 	};
 
@@ -55,7 +55,7 @@ CollectionSystemManager::CollectionSystemManager(Window* window) : mWindow(windo
 		Utils::FileSystem::createDirectory(path);
 
 	mIsEditingCustom = false;
-	mEditingCollection = "Favorites";
+	mEditingCollection = "즐겨찾기";
 	mEditingCollectionSystemData = NULL;
 	mCustomCollectionsBundle = NULL;
 }
@@ -255,7 +255,7 @@ void CollectionSystemManager::updateCollectionSystem(FileData* file, CollectionS
 			fileIndex->removeFromIndex(collectionEntry);
 			collectionEntry->refreshMetadata();
 			// found and we are removing
-			if (name == "favorites" && file->metadata.get("favorite") == "false") {
+			if (name == "즐겨찾기" && file->metadata.get("favorite") == "false") {
 				// need to check if still marked as favorite, if not remove
 				ViewController::get()->getGameListView(curSys).get()->remove(collectionEntry, false);
 			}
@@ -269,8 +269,8 @@ void CollectionSystemManager::updateCollectionSystem(FileData* file, CollectionS
 		else
 		{
 			// we didn't find it here - we need to check if we should add it
-			if (name == "recent" && file->metadata.get("playcount") > "0" && includeFileInAutoCollections(file) ||
-				name == "favorites" && file->metadata.get("favorite") == "true") {
+			if (name == "최근" && file->metadata.get("playcount") > "0" && includeFileInAutoCollections(file) ||
+				name == "즐겨찾기" && file->metadata.get("favorite") == "true") {
 				CollectionFileData* newGame = new CollectionFileData(file, curSys);
 				rootFolder->addChild(newGame);
 				fileIndex->addToIndex(newGame);
@@ -279,7 +279,7 @@ void CollectionSystemManager::updateCollectionSystem(FileData* file, CollectionS
 			}
 		}
 		rootFolder->sort(getSortTypeFromString(mCollectionSystemDeclsIndex[name].defaultSort));
-		if (name == "recent")
+		if (name == "최근")
 		{
 			trimCollectionCount(rootFolder, LAST_PLAYED_MAX);
 			ViewController::get()->onFileChanged(rootFolder, FILE_METADATA_CHANGED);
@@ -438,16 +438,16 @@ void CollectionSystemManager::setEditMode(std::string collectionName)
 	// if it's bundled, this needs to be the bundle system
 	mEditingCollectionSystemData = sysData;
 
-	GuiInfoPopup* s = new GuiInfoPopup(mWindow, "Editing the '" + Utils::String::toUpper(collectionName) + "' Collection. Add/remove games with Y.", 10000);
+	GuiInfoPopup* s = new GuiInfoPopup(mWindow, "'" + Utils::String::toUpper(collectionName) + "' 컬렉션 수정중. 게임 추가/삭제는 Y.", 10000);
 	mWindow->setInfoPopup(s);
 }
 
 void CollectionSystemManager::exitEditMode()
 {
-	GuiInfoPopup* s = new GuiInfoPopup(mWindow, "Finished editing the '" + mEditingCollection + "' Collection.", 4000);
+	GuiInfoPopup* s = new GuiInfoPopup(mWindow, "'" + mEditingCollection + "' 컬렉션 수정 완료.", 4000);
 	mWindow->setInfoPopup(s);
 	mIsEditingCustom = false;
-	mEditingCollection = "Favorites";
+	mEditingCollection = "즐겨찾기";
 }
 
 // adds or removes a game from a specific collection
@@ -525,11 +525,11 @@ bool CollectionSystemManager::toggleGameInCollection(FileData* file)
 		}
 		if (adding)
 		{
-			s = new GuiInfoPopup(mWindow, "Added '" + Utils::String::removeParenthesis(name) + "' to '" + Utils::String::toUpper(sysName) + "'", 4000);
+			s = new GuiInfoPopup(mWindow, "'" + Utils::String::removeParenthesis(name) + "'게임 추가 '" + Utils::String::toUpper(sysName) + "'", 4000);
 		}
 		else
 		{
-			s = new GuiInfoPopup(mWindow, "Removed '" + Utils::String::removeParenthesis(name) + "' from '" + Utils::String::toUpper(sysName) + "'", 4000);
+			s = new GuiInfoPopup(mWindow, "'" + Utils::String::removeParenthesis(name) + "'게임 삭제 '" + Utils::String::toUpper(sysName) + "'", 4000);
 		}
 		mWindow->setInfoPopup(s);
 		return true;
@@ -575,12 +575,12 @@ void CollectionSystemManager::updateCollectionFolderMetadata(SystemData* sys)
 {
 	FileData* rootFolder = sys->getRootFolder();
 
-	std::string desc = "This collection is empty.";
+	std::string desc = "현재 컬렉션이 비어있습니다.";
 	std::string rating = "0";
 	std::string players = "1";
 	std::string releasedate = "N/A";
-	std::string developer = "None";
-	std::string genre = "None";
+	std::string developer = "없음";
+	std::string genre = "없음";
 	std::string video = "";
 	std::string thumbnail = "";
 	std::string image = "";
@@ -605,8 +605,8 @@ void CollectionSystemManager::updateCollectionFolderMetadata(SystemData* sys)
 			rating = (new_rating > rating ? (new_rating != "" ? new_rating : rating) : rating);
 			players = (new_players > players ? (new_players != "" ? new_players : players) : players);
 			releasedate = (new_releasedate < releasedate ? (new_releasedate != "" ? new_releasedate : releasedate) : releasedate);
-			developer = (developer == "None" ? new_developer : (new_developer != developer ? "Various" : new_developer));
-			genre = (genre == "None" ? new_genre : (new_genre != genre ? "Various" : new_genre));
+			developer = (developer == "없음" ? new_developer : (new_developer != developer ? "Various" : new_developer));
+			genre = (genre == "없음" ? new_genre : (new_genre != genre ? "Various" : new_genre));
 
 			switch(games_counter)
 			{
@@ -617,11 +617,11 @@ void CollectionSystemManager::updateCollectionFolderMetadata(SystemData* sys)
 					games_list += "'" + file->getName() + "'";
 					break;
 				case 4:
-					games_list += " among other titles.";
+					games_list += " 다른 타이틀 중.";
 			}
 		}
 
-		desc = "This collection contains " + std::to_string(games_counter) + " games, including " + games_list;
+		desc = "현재 컬렉션에는 " + games_list + " 등을 포함한 " + std::to_string(games_counter) + "개의 게임이 있습니다." ;
 
 		FileData* randomGame = sys->getRandomGame();
 
@@ -653,7 +653,7 @@ void CollectionSystemManager::initCustomCollectionSystems()
 
 SystemData* CollectionSystemManager::getAllGamesCollection()
 {
-	CollectionSystemData* allSysData = &mAutoCollectionSystemsData["all"];
+	CollectionSystemData* allSysData = &mAutoCollectionSystemsData["전체"];
 	if (!allSysData->isPopulated)
 	{
 		populateAutoCollection(allSysData);

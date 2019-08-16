@@ -10,7 +10,7 @@ GuiScreensaverOptions::GuiScreensaverOptions(Window* window, const char* title) 
 {
 	addChild(&mMenu);
 
-	mMenu.addButton("BACK", "go back", [this] { delete this; });
+	mMenu.addButton("뒤로", "돌아가기", [this] { delete this; });
 
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
 	mMenu.setPosition((mSize.x() - mMenu.getSize().x()) / 2, Renderer::getScreenHeight() * 0.15f);
@@ -63,8 +63,9 @@ std::vector<HelpPrompt> GuiScreensaverOptions::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts = mMenu.getHelpPrompts();
 
-	prompts.push_back(HelpPrompt("b", "back"));
-	prompts.push_back(HelpPrompt("start", "close"));
+	prompts.push_back(HelpPrompt("b", "이전"));
+
+	prompts.push_back(HelpPrompt("start", "닫기"));
 
 	return prompts;
 }

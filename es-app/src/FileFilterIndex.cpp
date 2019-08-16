@@ -15,13 +15,13 @@ FileFilterIndex::FileFilterIndex()
 	clearAllFilters();
 	FilterDataDecl filterDecls[] = {
 		//type 				//allKeys 				//filteredBy 		//filteredKeys 				//primaryKey 	//hasSecondaryKey 	//secondaryKey 	//menuLabel
-		{ FAVORITES_FILTER, &favoritesIndexAllKeys, &filterByFavorites,	&favoritesIndexFilteredKeys,"favorite",		false,				"",				"FAVORITES"	},
-		{ GENRE_FILTER, 	&genreIndexAllKeys, 	&filterByGenre,		&genreIndexFilteredKeys, 	"genre",		true,				"genre",		"GENRE"	},
-		{ PLAYER_FILTER, 	&playersIndexAllKeys, 	&filterByPlayers,	&playersIndexFilteredKeys, 	"players",		false,				"",				"PLAYERS"	},
-		{ PUBDEV_FILTER, 	&pubDevIndexAllKeys, 	&filterByPubDev,	&pubDevIndexFilteredKeys, 	"developer",	true,				"publisher",	"PUBLISHER / DEVELOPER"	},
-		{ RATINGS_FILTER, 	&ratingsIndexAllKeys, 	&filterByRatings,	&ratingsIndexFilteredKeys, 	"rating",		false,				"",				"RATING"	},
-		{ KIDGAME_FILTER, 	&kidGameIndexAllKeys, 	&filterByKidGame,	&kidGameIndexFilteredKeys, 	"kidgame",		false,				"",				"KIDGAME" },
-		{ HIDDEN_FILTER, 	&hiddenIndexAllKeys, 	&filterByHidden,	&hiddenIndexFilteredKeys, 	"hidden",		false,				"",				"HIDDEN" }
+		{ FAVORITES_FILTER, &favoritesIndexAllKeys, &filterByFavorites,	&favoritesIndexFilteredKeys,"favorite",		false,				"",				"즐겨찾기"	},
+		{ GENRE_FILTER, 	&genreIndexAllKeys, 	&filterByGenre,		&genreIndexFilteredKeys, 	"genre",		true,				"genre",		"장르"	},
+		{ PLAYER_FILTER, 	&playersIndexAllKeys, 	&filterByPlayers,	&playersIndexFilteredKeys, 	"players",		false,				"",				"플레이어"	},
+		{ PUBDEV_FILTER, 	&pubDevIndexAllKeys, 	&filterByPubDev,	&pubDevIndexFilteredKeys, 	"developer",	true,				"publisher",	"판매사 / 개발사"},
+		{ RATINGS_FILTER, 	&ratingsIndexAllKeys, 	&filterByRatings,	&ratingsIndexFilteredKeys, 	"rating",		false,				"",				"평점"	},
+		{ KIDGAME_FILTER, 	&kidGameIndexAllKeys, 	&filterByKidGame,	&kidGameIndexFilteredKeys, 	"kidgame",		false,				"",				"아동용" },
+		{ HIDDEN_FILTER, 	&hiddenIndexAllKeys, 	&filterByHidden,	&hiddenIndexFilteredKeys, 	"hidden",		false,				"",				"숨김" }
 	};
 
 	filterDataDecl = std::vector<FilterDataDecl>(filterDecls, filterDecls + sizeof(filterDecls) / sizeof(filterDecls[0]));
@@ -140,7 +140,7 @@ std::string FileFilterIndex::getIndexableKey(FileData* game, FilterIndexType typ
 						if (ratingNumber < 0)
 							ratingNumber = 0;
 
-						key = std::to_string(ratingNumber) + " STARS";
+						key = std::to_string(ratingNumber) + " 별점";
 					}
 					catch (int e)
 					{
@@ -173,7 +173,7 @@ std::string FileFilterIndex::getIndexableKey(FileData* game, FilterIndexType typ
 		}
 	}
 	key = Utils::String::trim(key);
-	if (key.empty() || (type == RATINGS_FILTER && key == "0 STARS")) {
+	if (key.empty() || (type == RATINGS_FILTER && key == "0 별점")) {
 		key = UNKNOWN_LABEL;
 	}
 	return key;
@@ -251,13 +251,13 @@ void FileFilterIndex::setUIModeFilters()
 		if (UIModeController::getInstance()->isUIModeKiosk())
 		{
 			filterByHidden = true;
-			std::vector<std::string> val = { "FALSE" };
+			std::vector<std::string> val = { "아니오" };
 			setFilter(HIDDEN_FILTER, &val);
 		}
 		if (UIModeController::getInstance()->isUIModeKid())
 		{
 			filterByKidGame = true;
-			std::vector<std::string> val = { "TRUE" };
+			std::vector<std::string> val = { "예" };
 			setFilter(KIDGAME_FILTER, &val);
 		}
 	}

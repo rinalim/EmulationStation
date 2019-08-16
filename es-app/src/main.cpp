@@ -204,18 +204,18 @@ bool loadSystemConfigFile(const char** errorString)
 	if(!SystemData::loadConfig())
 	{
 		LOG(LogError) << "Error while parsing systems configuration file!";
-		*errorString = "IT LOOKS LIKE YOUR SYSTEMS CONFIGURATION FILE HAS NOT BEEN SET UP OR IS INVALID. YOU'LL NEED TO DO THIS BY HAND, UNFORTUNATELY.\n\n"
-			"VISIT EMULATIONSTATION.ORG FOR MORE INFORMATION.";
+		*errorString = "시스템 설정 파일이 올바르지 않거나 설정되지 않았습니다. 안타깝게도 수작업으로 수정해야 할 것 같습니다.\n\n"
+			"자세한 정보는 EMULATIONSTATION.ORG에서 확인하세요.";
 		return false;
 	}
 
 	if(SystemData::sSystemVector.size() == 0)
 	{
 		LOG(LogError) << "No systems found! Does at least one system have a game present? (check that extensions match!)\n(Also, make sure you've updated your es_systems.cfg for XML!)";
-		*errorString = "WE CAN'T FIND ANY SYSTEMS!\n"
-			"CHECK THAT YOUR PATHS ARE CORRECT IN THE SYSTEMS CONFIGURATION FILE, "
-			"AND YOUR GAME DIRECTORY HAS AT LEAST ONE GAME WITH THE CORRECT EXTENSION.\n\n"
-			"VISIT EMULATIONSTATION.ORG FOR MORE INFORMATION.";
+		*errorString = "설치된 시스템을 찾을 수 없습니다!\n"
+			"시스템 설정 파일에서 경로 설정이 올바른지, "
+			"게임 폴더에 올바른 확장명을 가진 게임이\n한 개 이상 있는지 확인하십시오.\n"
+			"자세한 정보는 EMULATIONSTATION.ORG에서 확인하세요.";
 		return false;
 	}
 
@@ -311,9 +311,9 @@ int main(int argc, char* argv[])
 		LOG(LogInfo) << " ARB_texture_non_power_of_two: " << (glExts.find("ARB_texture_non_power_of_two") != std::string::npos ? "ok" : "MISSING");
 		if(splashScreen)
 		{
-			std::string progressText = "Loading...";
+			std::string progressText = "불러오는 중...";
 			if (splashScreenProgress)
-				progressText = "Loading system config...";
+				progressText = "시스템 설정 불러오는 중...";
 			window.renderLoadingScreen(progressText);
 		}
 	}
@@ -354,7 +354,7 @@ int main(int argc, char* argv[])
 	ViewController::get()->preload();
 
 	if(splashScreen && splashScreenProgress)
-		window.renderLoadingScreen("Done.");
+		window.renderLoadingScreen("완료.");
 
 	//choose which GUI to open depending on if an input configuration already exists
 	if(errorMsg == NULL)

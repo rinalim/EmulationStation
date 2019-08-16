@@ -18,31 +18,31 @@ struct InputConfigStructure
 static const int inputCount = 25;
 static const InputConfigStructure GUI_INPUT_CONFIG_LIST[inputCount] =
 {
-	{ "Up",               false, "D-PAD UP",           ":/help/dpad_up.svg" },
-	{ "Down",             false, "D-PAD DOWN",         ":/help/dpad_down.svg" },
-	{ "Left",             false, "D-PAD LEFT",         ":/help/dpad_left.svg" },
-	{ "Right",            false, "D-PAD RIGHT",        ":/help/dpad_right.svg" },
-	{ "Start",            true,  "START",              ":/help/button_start.svg" },
-	{ "Select",           true,  "SELECT",             ":/help/button_select.svg" },
-	{ "A",                false, "BUTTON A / EAST",    ":/help/buttons_east.svg" },
-	{ "B",                true,  "BUTTON B / SOUTH",   ":/help/buttons_south.svg" },
-	{ "X",                true,  "BUTTON X / NORTH",   ":/help/buttons_north.svg" },
-	{ "Y",                true,  "BUTTON Y / WEST",    ":/help/buttons_west.svg" },
-	{ "LeftShoulder",     true,  "LEFT SHOULDER",      ":/help/button_l.svg" },
-	{ "RightShoulder",    true,  "RIGHT SHOULDER",     ":/help/button_r.svg" },
-	{ "LeftTrigger",      true,  "LEFT TRIGGER",       ":/help/button_lt.svg" },
-	{ "RightTrigger",     true,  "RIGHT TRIGGER",      ":/help/button_rt.svg" },
-	{ "LeftThumb",        true,  "LEFT THUMB",         ":/help/analog_thumb.svg" },
-	{ "RightThumb",       true,  "RIGHT THUMB",        ":/help/analog_thumb.svg" },
-	{ "LeftAnalogUp",     true,  "LEFT ANALOG UP",     ":/help/analog_up.svg" },
-	{ "LeftAnalogDown",   true,  "LEFT ANALOG DOWN",   ":/help/analog_down.svg" },
-	{ "LeftAnalogLeft",   true,  "LEFT ANALOG LEFT",   ":/help/analog_left.svg" },
-	{ "LeftAnalogRight",  true,  "LEFT ANALOG RIGHT",  ":/help/analog_right.svg" },
-	{ "RightAnalogUp",    true,  "RIGHT ANALOG UP",    ":/help/analog_up.svg" },
-	{ "RightAnalogDown",  true,  "RIGHT ANALOG DOWN",  ":/help/analog_down.svg" },
-	{ "RightAnalogLeft",  true,  "RIGHT ANALOG LEFT",  ":/help/analog_left.svg" },
-	{ "RightAnalogRight", true,  "RIGHT ANALOG RIGHT", ":/help/analog_right.svg" },
-	{ "HotKeyEnable",     true,  "HOTKEY ENABLE",      ":/help/button_hotkey.svg" }
+	{ "Up",               false, "D-패드 위",           ":/help/dpad_up.svg" },
+	{ "Down",             false, "D-패드 아래",         ":/help/dpad_down.svg" },
+	{ "Left",             false, "D-패드 좌",         ":/help/dpad_left.svg" },
+	{ "Right",            false, "D-패드 우",        ":/help/dpad_right.svg" },
+	{ "Start",            true,  "스타트",              ":/help/button_start.svg" },
+	{ "Select",           true,  "셀렉트",             ":/help/button_select.svg" },
+	{ "A",                false, "A 버튼",    ":/help/buttons_east.svg" },
+	{ "B",                true,  "B 버튼",   ":/help/buttons_south.svg" },
+	{ "X",                true,  "X 버튼",   ":/help/buttons_north.svg" },
+	{ "Y",                true,  "Y 버튼",    ":/help/buttons_west.svg" },
+	{ "LeftShoulder",     true,  "왼쪽 숄더",      ":/help/button_l.svg" },
+	{ "RightShoulder",    true,  "오른쪽 숄더",     ":/help/button_r.svg" },
+	{ "LeftTrigger",      true,  "왼쪽 트리거",       ":/help/button_lt.svg" },
+	{ "RightTrigger",     true,  "오른쪽 트리거",      ":/help/button_rt.svg" },
+	{ "LeftThumb",        true,  "왼쪽 엄지버튼",         ":/help/analog_thumb.svg" },
+	{ "RightThumb",       true,  "오른쪽 엄지버튼",        ":/help/analog_thumb.svg" },
+	{ "LeftAnalogUp",     true,  "왼쪽 아날로그 위",     ":/help/analog_up.svg" },
+	{ "LeftAnalogDown",   true,  "왼쪽 아날로그 아래",   ":/help/analog_down.svg" },
+	{ "LeftAnalogLeft",   true,  "왼쪽 아날로그 좌",   ":/help/analog_left.svg" },
+	{ "LeftAnalogRight",  true,  "왼쪽 아날로그 우",  ":/help/analog_right.svg" },
+	{ "RightAnalogUp",    true,  "오른쪽 아날로그 위",    ":/help/analog_up.svg" },
+	{ "RightAnalogDown",  true,  "오른쪽 아날로그 아래",  ":/help/analog_down.svg" },
+	{ "RightAnalogLeft",  true,  "오른쪽 아날로그 좌",  ":/help/analog_left.svg" },
+	{ "RightAnalogRight", true,  "오른쪽 아날로그 우", ":/help/analog_right.svg" },
+	{ "HotKeyEnable",     true,  "핫키",      ":/help/button_hotkey.svg" }
 };
 
 //MasterVolUp and MasterVolDown are also hooked up, but do not appear on this screen.
@@ -68,20 +68,20 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 	// 0 is a spacer row
 	mGrid.setEntry(std::make_shared<GuiComponent>(mWindow), Vector2i(0, 0), false);
 
-	mTitle = std::make_shared<TextComponent>(mWindow, "CONFIGURING", Font::get(FONT_SIZE_LARGE), 0x555555FF, ALIGN_CENTER);
+	mTitle = std::make_shared<TextComponent>(mWindow, "설정중", Font::get(FONT_SIZE_LARGE), 0x555555FF, ALIGN_CENTER);
 	mGrid.setEntry(mTitle, Vector2i(0, 1), false, true);
 	
 	std::stringstream ss;
 	if(target->getDeviceId() == DEVICE_KEYBOARD)
-		ss << "KEYBOARD";
+		ss << "키보드";
 	else if(target->getDeviceId() == DEVICE_CEC)
 		ss << "CEC";
 	else
-		ss << "GAMEPAD " << (target->getDeviceId() + 1);
+		ss << "게임패드 " << (target->getDeviceId() + 1);
 	mSubtitle1 = std::make_shared<TextComponent>(mWindow, Utils::String::toUpper(ss.str()), Font::get(FONT_SIZE_MEDIUM), 0x555555FF, ALIGN_CENTER);
 	mGrid.setEntry(mSubtitle1, Vector2i(0, 2), false, true);
 
-	mSubtitle2 = std::make_shared<TextComponent>(mWindow, "HOLD ANY BUTTON TO SKIP", Font::get(FONT_SIZE_SMALL), 0x999999FF, ALIGN_CENTER);
+	mSubtitle2 = std::make_shared<TextComponent>(mWindow, "건너뛰려면 버튼을 길게 누르세요", Font::get(FONT_SIZE_SMALL), 0x999999FF, ALIGN_CENTER);
 	mGrid.setEntry(mSubtitle2, Vector2i(0, 3), false, true);
 
 	// 4 is a spacer row
@@ -107,7 +107,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 		auto text = std::make_shared<TextComponent>(mWindow, GUI_INPUT_CONFIG_LIST[i].dispName, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
 		row.addElement(text, true);
 
-		auto mapping = std::make_shared<TextComponent>(mWindow, "-NOT DEFINED-", Font::get(FONT_SIZE_MEDIUM, FONT_PATH_LIGHT), 0x999999FF, ALIGN_RIGHT);
+		auto mapping = std::make_shared<TextComponent>(mWindow, "-정의 안됨-", Font::get(FONT_SIZE_MEDIUM, FONT_PATH_LIGHT), 0x999999FF, ALIGN_RIGHT);
 		setNotDefined(mapping); // overrides text and color set above
 		row.addElement(mapping, true);
 		mMappings.push_back(mapping);
@@ -192,14 +192,14 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 		Input input;
 		if (!mTargetConfig->getInputByName("HotKeyEnable", &input)) {
 			mWindow->pushGui(new GuiMsgBox(mWindow,
-				"YOU DIDN'T CHOOSE A HOTKEY ENABLE BUTTON. THIS IS REQUIRED FOR EXITING GAMES WITH A CONTROLLER. DO YOU WANT TO USE THE SELECT BUTTON DEFAULT ? PLEASE ANSWER YES TO USE SELECT OR NO TO NOT SET A HOTKEY ENABLE BUTTON.",
-				"YES", [this, okFunction] {
+				"핫키 설정을 선택하지 않았습니다. 컨트롤러를 이용해 게임 종료를 하려면 반드시 필요한 설정입니다. 셀렉트 버튼을 기본 핫키로 사용하시겠습니까? 예를 선택하면 셀렉트 버튼으로 설정되고 아니오를 선택하면 핫키를 설정하지 않습니다.",
+				"예", [this, okFunction] {
 					Input input;
 					mTargetConfig->getInputByName("Select", &input);
 					mTargetConfig->mapInput("HotKeyEnable", input);
 					okFunction();
 					},
-				"NO", [this, okFunction] {
+				"아니오", [this, okFunction] {
 					// for a disabled hotkey enable button, set to a key with id 0,
 					// so the input configuration script can be backwards compatible.
 					mTargetConfig->mapInput("HotKeyEnable", Input(DEVICE_KEYBOARD, TYPE_KEY, 0, 1, true));
@@ -255,7 +255,7 @@ void GuiInputConfig::update(int deltaTime)
 				// crossed the second boundary, update text
 				const auto& text = mMappings.at(mHeldInputId);
 				std::stringstream ss;
-				ss << "HOLD FOR " << HOLD_TO_SKIP_MS/1000 - curSec << "S TO SKIP";
+				ss << "건너 뛰려면 " << HOLD_TO_SKIP_MS/1000 - curSec << "초 동안 누르세요";
 				text->setText(ss.str());
 				text->setColor(0x777777FF);
 			}
@@ -287,13 +287,13 @@ void GuiInputConfig::rowDone()
 
 void GuiInputConfig::setPress(const std::shared_ptr<TextComponent>& text)
 {
-	text->setText("PRESS ANYTHING");
+	text->setText("아무 버튼이나 누르세요");
 	text->setColor(0x656565FF);
 }
 
 void GuiInputConfig::setNotDefined(const std::shared_ptr<TextComponent>& text)
 {
-	text->setText("-NOT DEFINED-");
+	text->setText("-정의 안됨-");
 	text->setColor(0x999999FF);
 }
 
@@ -305,7 +305,7 @@ void GuiInputConfig::setAssignedTo(const std::shared_ptr<TextComponent>& text, I
 
 void GuiInputConfig::error(const std::shared_ptr<TextComponent>& text, const std::string& /*msg*/)
 {
-	text->setText("ALREADY TAKEN");
+	text->setText("이미 사용중입니다");
 	text->setColor(0x656565FF);
 }
 
