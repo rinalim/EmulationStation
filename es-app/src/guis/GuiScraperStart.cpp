@@ -9,15 +9,15 @@
 #include "SystemData.h"
 
 GuiScraperStart::GuiScraperStart(Window* window) : GuiComponent(window),
-	mMenu(window, "스크랩 실행")
+	mMenu(window, "SCRAPE NOW")
 {
 	addChild(&mMenu);
 
 	// add filters (with first one selected)
 	mFilters = std::make_shared< OptionListComponent<GameFilterFunc> >(mWindow, "다음 게임 스크랩", false);
-	mFilters->add("전체 게임", 
+	mFilters->add("전체 게임",
 		[](SystemData*, FileData*) -> bool { return true; }, false);
-	mFilters->add("이미지가 없는 게임", 
+	mFilters->add("이미지가 없는 게임",
 		[](SystemData*, FileData* g) -> bool { return g->metadata.get("image").empty(); }, true);
 	mMenu.addWithLabel("필터", mFilters);
 
@@ -47,10 +47,10 @@ void GuiScraperStart::pressedStart()
 	{
 		if((*it)->getPlatformIds().empty())
 		{
-			mWindow->pushGui(new GuiMsgBox(mWindow, 
-				Utils::String::toUpper("경고 : 선택된 시스템 중 일부는 플랫폼 설정이 없습니다. 기존과 다르게 결과가 정확하지 않을 수 있습니다!\n계속하시겠습니까?"), 
-				"예", std::bind(&GuiScraperStart::start, this), 
-				"아니오", nullptr));
+			mWindow->pushGui(new GuiMsgBox(mWindow,
+				Utils::String::toUpper("경고 : 선택된 시스템 중 일부는 플랫폼 설정이 없습니다. 기존과 다르게 결과가 정확하지 않을 수 있습니다!\n계속하시겠습니까?"),
+				"YES", std::bind(&GuiScraperStart::start, this),
+				"NO", nullptr));
 			return;
 		}
 	}
@@ -86,7 +86,7 @@ std::queue<ScraperSearchParams> GuiScraperStart::getSearches(std::vector<SystemD
 				ScraperSearchParams search;
 				search.game = *game;
 				search.system = *sys;
-				
+
 				queue.push(search);
 			}
 		}
@@ -100,7 +100,7 @@ bool GuiScraperStart::input(InputConfig* config, Input input)
 	bool consumed = GuiComponent::input(config, input);
 	if(consumed)
 		return true;
-	
+
 	if(input.value != 0 && config->isMappedTo("b", input))
 	{
 		delete this;

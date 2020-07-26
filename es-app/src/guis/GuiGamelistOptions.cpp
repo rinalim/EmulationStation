@@ -64,7 +64,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 			}
 			return false;
 		};
-		mMenu.addRow(row);
+		// mMenu.addRow(row);
 
 		// sort list by
 		mListSort = std::make_shared<SortList>(mWindow, "게임 정렬", false);
@@ -83,7 +83,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 		row.addElement(std::make_shared<TextComponent>(mWindow, "게임목록 필터", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		row.addElement(makeArrow(mWindow), false);
 		row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openGamelistFilter, this));
-		mMenu.addRow(row);		
+		mMenu.addRow(row);
 	}
 
 	std::map<std::string, CollectionSystemData> customCollections = CollectionSystemManager::get()->getCustomCollectionSystems();

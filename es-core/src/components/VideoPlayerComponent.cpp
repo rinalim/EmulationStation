@@ -1,9 +1,9 @@
 #ifdef _RPI_
 #include "components/VideoPlayerComponent.h"
 
+#include "renderers/Renderer.h"
 #include "utils/StringUtil.h"
 #include "AudioManager.h"
-#include "Renderer.h"
 #include "Settings.h"
 #include <fcntl.h>
 #include <unistd.h>
@@ -30,6 +30,9 @@ VideoPlayerComponent::~VideoPlayerComponent()
 
 void VideoPlayerComponent::render(const Transform4x4f& parentTrans)
 {
+	if (!isVisible())
+		return;
+
 	VideoComponent::render(parentTrans);
 
 	if (!mIsPlaying || mPlayerPid == -1)
@@ -115,7 +118,7 @@ void VideoPlayerComponent::startVideo()
 
 					case 1:
 					{
-						const int x1 = (int)(Renderer::getScreenOffsetY() + Renderer::getScreenHeight() - y - mSize.y());
+						const int x1 = (int)(Renderer::getWindowWidth() - Renderer::getScreenOffsetY() - y - mSize.y());
 						const int y1 = (int)(Renderer::getScreenOffsetX() + x);
 						const int x2 = (int)(x1 + mSize.y());
 						const int y2 = (int)(y1 + mSize.x());
@@ -125,8 +128,8 @@ void VideoPlayerComponent::startVideo()
 
 					case 2:
 					{
-						const int x1 = (int)(Renderer::getScreenOffsetX() + Renderer::getScreenWidth()  - x - mSize.x());
-						const int y1 = (int)(Renderer::getScreenOffsetY() + Renderer::getScreenHeight() - y - mSize.y());
+						const int x1 = (int)(Renderer::getWindowWidth()  - Renderer::getScreenOffsetX() - x - mSize.x());
+						const int y1 = (int)(Renderer::getWindowHeight() - Renderer::getScreenOffsetY() - y - mSize.y());
 						const int x2 = (int)(x1 + mSize.x());
 						const int y2 = (int)(y1 + mSize.y());
 						sprintf(buf1, "%d,%d,%d,%d", x1, y1, x2, y2);
@@ -136,7 +139,7 @@ void VideoPlayerComponent::startVideo()
 					case 3:
 					{
 						const int x1 = (int)(Renderer::getScreenOffsetY() + y);
-						const int y1 = (int)(Renderer::getScreenOffsetX() + Renderer::getScreenWidth() - x - mSize.x());
+						const int y1 = (int)(Renderer::getWindowHeight() - Renderer::getScreenOffsetX() - x - mSize.x());
 						const int x2 = (int)(x1 + mSize.y());
 						const int y2 = (int)(y1 + mSize.x());
 						sprintf(buf1, "%d,%d,%d,%d", x1, y1, x2, y2);
@@ -159,7 +162,8 @@ void VideoPlayerComponent::startVideo()
 				const char* argv[] = { "", "--layer", "10010", "--loop", "--no-osd", "--aspect-mode", "letterbox", "--vol", "0", "-o", "both","--win", buf1, "--orientation", buf2, "", "", "", "", "", "", "", "", "", "", "", NULL };
 
 				// check if we want to mute the audio
-				if (!Settings::getInstance()->getBool("VideoAudio") || (float)VolumeControl::getInstance()->getVolume() == 0)
+				if ((!Settings::getInstance()->getBool("VideoAudio") || (float)VolumeControl::getInstance()->getVolume() == 0) ||
+					(Settings::getInstance()->getBool("ScreenSaverVideoMute") && mScreensaverMode))
 				{
 					argv[8] = "-1000000";
 				}

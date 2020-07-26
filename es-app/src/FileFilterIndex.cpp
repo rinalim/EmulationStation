@@ -251,13 +251,13 @@ void FileFilterIndex::setUIModeFilters()
 		if (UIModeController::getInstance()->isUIModeKiosk())
 		{
 			filterByHidden = true;
-			std::vector<std::string> val = { "아니오" };
+			std::vector<std::string> val = { "FALSE" };
 			setFilter(HIDDEN_FILTER, &val);
 		}
 		if (UIModeController::getInstance()->isUIModeKid())
 		{
 			filterByKidGame = true;
-			std::vector<std::string> val = { "예" };
+			std::vector<std::string> val = { "TRUE" };
 			setFilter(KIDGAME_FILTER, &val);
 		}
 	}
@@ -280,10 +280,10 @@ void FileFilterIndex::debugPrintIndexes()
 	}
 	for (auto x: favoritesIndexAllKeys) {
 		LOG(LogInfo) << "Favorites Index: " << x.first << ": " << x.second;
-	}	
+	}
 	for (auto x : hiddenIndexAllKeys) {
 		LOG(LogInfo) << "Hidden Index: " << x.first << ": " << x.second;
-	}	
+	}
 	for (auto x : kidGameIndexAllKeys) {
 		LOG(LogInfo) << "KidGames Index: " << x.first << ": " << x.second;
 	}

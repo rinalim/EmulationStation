@@ -14,10 +14,10 @@ MetaDataDecl gameDecls[] = {
 	{"marquee",     MD_PATH,                "",                 false,      "마키",              "마키 이미지 경로 입력"},
 	{"thumbnail",   MD_PATH,                "",                 false,      "미리보기",            "미리보기 이미지 경로 입력"},
 	{"rating",      MD_RATING,              "0.000000",         false,      "평점",               "평점 입력"},
-	{"releasedate", MD_DATE,                "날짜없음",  false,      "발매일",         "발매일 입력"},
-	{"developer",   MD_STRING,              "알수없음",          false,      "개발사",            "개발사 입력"},
-	{"publisher",   MD_STRING,              "알수없음",          false,      "판매사",            "판매사 입력"},
-	{"genre",       MD_STRING,              "알수없음",          false,      "장르",                "장르 입력"},
+	{"releasedate", MD_DATE,                "날짜없음",         false,      "발매일",         "발매일 입력"},
+	{"developer",   MD_STRING,              "알수없음",         false,      "개발사",            "개발사 입력"},
+	{"publisher",   MD_STRING,              "알수없음",         false,      "판매사",            "판매사 입력"},
+	{"genre",       MD_STRING,              "알수없음",         false,      "장르",                "장르 입력"},
 	{"players",     MD_INT,                 "1",                false,      "플레이어",              "플레이어 수 입력"},
 	{"favorite",    MD_BOOL,                "false",            false,      "즐겨찾기",             "즐겨찾기 표시"},
 	{"hidden",      MD_BOOL,                "false",            false,      "숨김",               "숨기기 설정/해제" },
@@ -36,10 +36,10 @@ MetaDataDecl folderDecls[] = {
 	{"video",       MD_PATH,                "",                 false,      "동영상",                "동영상 경로 입력"},
 	{"marquee",     MD_PATH,                "",                 false,      "마키",              "마키 이미지 경로 입력"},
 	{"rating",      MD_RATING,              "0.000000",         false,      "평점",               "평점 입력"},
-	{"releasedate", MD_DATE,                "날짜없음",  false,      "발매일",         "발매일 입력"},
-	{"developer",   MD_STRING,              "알수없음",          false,      "개발사",            "개발사 입력"},
-	{"publisher",   MD_STRING,              "알수없음",          false,      "판매사",            "판매사 입력"},
-	{"genre",       MD_STRING,              "알수없음",          false,      "장르",                "장르 입력"},
+	{"releasedate", MD_DATE,                "날짜없음",         false,      "발매일",         "발매일 입력"},
+	{"developer",   MD_STRING,              "알수없음",         false,      "개발사",            "개발사 입력"},
+	{"publisher",   MD_STRING,              "알수없음",         false,      "판매사",            "판매사 입력"},
+	{"genre",       MD_STRING,              "알수없음",         false,      "장르",                "장르 입력"},
 	{"players",     MD_INT,                 "1",                false,      "플레이어",              "플레이어 수 입력"}
 };
 const std::vector<MetaDataDecl> folderMDD(folderDecls, folderDecls + sizeof(folderDecls) / sizeof(folderDecls[0]));
@@ -108,7 +108,7 @@ void MetaDataList::appendToXML(pugi::xml_node& parent, bool ignoreDefaults, cons
 			// if it's just the default (and we ignore defaults), don't write it
 			if(ignoreDefaults && mapIter->second == mddIter->defaultValue)
 				continue;
-			
+
 			// try and make paths relative if we can
 			std::string value = mapIter->second;
 			if (mddIter->type == MD_PATH)
@@ -138,17 +138,6 @@ int MetaDataList::getInt(const std::string& key) const
 float MetaDataList::getFloat(const std::string& key) const
 {
 	return (float)atof(get(key).c_str());
-}
-
-bool MetaDataList::isDefault()
-{
-	const std::vector<MetaDataDecl>& mdd = getMDD();
-
-	for (unsigned int i = 1; i < mMap.size(); i++) {
-		if (mMap.at(mdd[i].key) != mdd[i].defaultValue) return false;
-	}
-
-	return true;
 }
 
 bool MetaDataList::wasChanged() const

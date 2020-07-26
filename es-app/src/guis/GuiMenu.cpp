@@ -18,6 +18,7 @@
 #include "VolumeControl.h"
 #include <SDL_events.h>
 #include <algorithm>
+#include "platform.h"
 
 GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "메인 메뉴"), mVersion(window)
 {
@@ -40,6 +41,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "메인 �
 
 	if (isFullUI)
 		addEntry("입력 설정", 0x777777FF, true, [this] { openConfigInput(); });
+	
+	addEntry("정보", 0x777777FF, true, [this] { openInfoMenu(); });
 
 	addEntry("종료", 0x777777FF, true, [this] {openQuitMenu(); });
 
@@ -102,12 +105,6 @@ void GuiMenu::openSoundSettings()
 		// audio card
 		auto audio_card = std::make_shared< OptionListComponent<std::string> >(mWindow, "오디오 카드", false);
 		std::vector<std::string> audio_cards;
-	#ifdef _RPI_
-		// RPi Specific  Audio Cards
-		audio_cards.push_back("local");
-		audio_cards.push_back("hdmi");
-		audio_cards.push_back("both");
-	#endif
 		audio_cards.push_back("default");
 		audio_cards.push_back("sysdefault");
 		audio_cards.push_back("dmix");
@@ -132,6 +129,8 @@ void GuiMenu::openSoundSettings()
 		auto vol_dev = std::make_shared< OptionListComponent<std::string> >(mWindow, "오디오 장치", false);
 		std::vector<std::string> transitions;
 		transitions.push_back("PCM");
+		transitions.push_back("HDMI");
+		transitions.push_back("Headphone");
 		transitions.push_back("Speaker");
 		transitions.push_back("Master");
 		transitions.push_back("Digital");
@@ -179,6 +178,7 @@ void GuiMenu::openSoundSettings()
 		omx_cards.push_back("local");
 		omx_cards.push_back("hdmi");
 		omx_cards.push_back("both");
+		omx_cards.push_back("alsa");
 		omx_cards.push_back("alsa:hw:0,0");
 		omx_cards.push_back("alsa:hw:1,0");
 		if (Settings::getInstance()->getString("OMXAudioDev") != "") {
@@ -216,12 +216,12 @@ void GuiMenu::openUISettings()
 		std::string selectedMode = UImodeSelection->getSelected();
 		if (selectedMode != "Full")
 		{
-			std::string msg = "UI를 제한 모드로 변경하려고 합니다:\n" + selectedMode + "\n";
-			msg += "이 작업은 대부분의 옵션 메뉴를 숨기고 시스템 설정 변경을 방지합니다.\n";
-			msg += "잠금을 풀고 전제 모드 UI로 변경하려면 아래 코드를 입력하세요: \n";
+			std::string msg = "UI를 제한된 모드로 변경할 수 있습니다:\n" + selectedMode + "\n";
+			msg += "이 설정은 메뉴 옵션을 숨겨서 시스템을 변경하지 못하게 합니다.\n";
+			msg += "전체 UI 모드로 변경하려면 다음의 코드를 입력하십시오: \n";
 			msg += "\"" + UIModeController::getInstance()->getFormattedPassKeyStr() + "\"\n\n";
 			msg += "계속하시겠습니까?";
-			window->pushGui(new GuiMsgBox(window, msg, 
+			window->pushGui(new GuiMsgBox(window, msg,
 				"예", [selectedMode] {
 					LOG(LogDebug) << "Setting UI mode to " << selectedMode;
 					Settings::getInstance()->setString("UIMode", selectedMode);
@@ -359,11 +359,17 @@ void GuiMenu::openUISettings()
 	auto enable_filter = std::make_shared<SwitchComponent>(mWindow);
 	enable_filter->setState(!Settings::getInstance()->getBool("ForceDisableFilters"));
 	s->addWithLabel("필터 사용", enable_filter);
-	s->addSaveFunc([enable_filter] { 
+	s->addSaveFunc([enable_filter] {
 		bool filter_is_enabled = !Settings::getInstance()->getBool("ForceDisableFilters");
-		Settings::getInstance()->setBool("ForceDisableFilters", !enable_filter->getState()); 
+		Settings::getInstance()->setBool("ForceDisableFilters", !enable_filter->getState());
 		if (enable_filter->getState() != filter_is_enabled) ViewController::get()->ReloadAndGoToStart();
 	});
+
+	// hide start menu in Kid Mode
+	auto disable_start = std::make_shared<SwitchComponent>(mWindow);
+	disable_start->setState(Settings::getInstance()->getBool("DisableKidStartMenu"));
+	s->addWithLabel("키드 모드에서 시작 메뉴 숨김", disable_start);
+	s->addSaveFunc([disable_start] { Settings::getInstance()->setBool("DisableKidStartMenu", disable_start->getState()); });
 
 	mWindow->pushGui(s);
 
@@ -400,10 +406,18 @@ void GuiMenu::openOtherSettings()
 	});
 
 	// gamelists
-	auto save_gamelists = std::make_shared<SwitchComponent>(mWindow);
-	save_gamelists->setState(Settings::getInstance()->getBool("SaveGamelistsOnExit"));
-	s->addWithLabel("종료시 메타데이터 저장", save_gamelists);
-	s->addSaveFunc([save_gamelists] { Settings::getInstance()->setBool("SaveGamelistsOnExit", save_gamelists->getState()); });
+	auto gamelistsSaveMode = std::make_shared< OptionListComponent<std::string> >(mWindow, "메타데이터 저장", false);
+	std::vector<std::string> saveModes;
+	saveModes.push_back("on exit");
+	saveModes.push_back("always");
+	saveModes.push_back("never");
+
+	for(auto it = saveModes.cbegin(); it != saveModes.cend(); it++)
+		gamelistsSaveMode->add(*it, *it, Settings::getInstance()->getString("SaveGamelistsMode") == *it);
+	s->addWithLabel("메타데이터 저장", gamelistsSaveMode);
+	s->addSaveFunc([gamelistsSaveMode] {
+		Settings::getInstance()->setString("SaveGamelistsMode", gamelistsSaveMode->getSelected());
+	});
 
 	auto parse_gamelists = std::make_shared<SwitchComponent>(mWindow);
 	parse_gamelists->setState(Settings::getInstance()->getBool("ParseGamelistOnly"));
@@ -463,6 +477,45 @@ void GuiMenu::openConfigInput()
 
 }
 
+void GuiMenu::getInfo(const char *cmdline, char info_buff[], int size)
+{
+	FILE *fp;
+
+	fp=popen(cmdline,"r");
+
+	if( NULL != fp )
+	{	
+		fgets(info_buff, size, fp);		
+		*(info_buff+(strlen(info_buff)-1))=0;  /* fget() 사용시 개행문자 \n 제거 */
+
+		pclose( fp );
+	}
+}
+
+void GuiMenu::openInfoMenu()
+{
+	// OGA-9P Settings
+	auto s = new GuiSettings(mWindow, "정보");
+	Window* window = mWindow;
+	ComponentListRow row;
+
+	// eth, wlan 아이피 표시
+	char ip[100];
+	getInfo("echo \"IP 정보 : `hostname -I`\"", ip, sizeof(ip));
+	row.addElement(std::make_shared<TextComponent>(window, ip, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	s->addRow(row);
+
+	row.elements.clear();
+	// 전체, 남은 용량 표시
+	char df[100];
+	getInfo("df -h | grep /dev/root | awk '{print \"전체용량 : \"$2 \" / 남은용량 : \"  $3}'", df, sizeof(df));
+	row.addElement(std::make_shared<TextComponent>(window, df, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	s->addRow(row);
+
+	mWindow->pushGui(s);
+
+}
+
 void GuiMenu::openQuitMenu()
 {
 	auto s = new GuiSettings(mWindow, "종료");
@@ -476,9 +529,9 @@ void GuiMenu::openQuitMenu()
 			window->pushGui(new GuiMsgBox(window, "정말 다시 시작합니까?", "예",
 				[] {
 				Scripting::fireEvent("quit");
-				if(quitES("/tmp/es-restart") != 0)
+				if(quitES(QuitMode::RESTART) != 0)
 					LOG(LogWarning) << "Restart terminated with non-zero result!";
-			}, "아니오", nullptr));
+			}, "NO", nullptr));
 		});
 		row.addElement(std::make_shared<TextComponent>(window, "에뮬레이션스테이션 재시작", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		s->addRow(row);
@@ -492,8 +545,8 @@ void GuiMenu::openQuitMenu()
 				window->pushGui(new GuiMsgBox(window, "정말로 나갑니까?", "예",
 					[] {
 					Scripting::fireEvent("quit");
-					quitES("");
-				}, "아니오", nullptr));
+					quitES();
+				}, "NO", nullptr));
 			});
 			row.addElement(std::make_shared<TextComponent>(window, "에뮬레이션스테이션 나가기", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 			s->addRow(row);
@@ -505,9 +558,9 @@ void GuiMenu::openQuitMenu()
 			[] {
 			Scripting::fireEvent("quit", "reboot");
 			Scripting::fireEvent("reboot");
-			if (quitES("/tmp/es-sysrestart") != 0)
+			if (quitES(QuitMode::REBOOT) != 0)
 				LOG(LogWarning) << "Restart terminated with non-zero result!";
-		}, "아니오", nullptr));
+		}, "NO", nullptr));
 	});
 	row.addElement(std::make_shared<TextComponent>(window, "시스템 재시작", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	s->addRow(row);
@@ -518,9 +571,9 @@ void GuiMenu::openQuitMenu()
 			[] {
 			Scripting::fireEvent("quit", "shutdown");
 			Scripting::fireEvent("shutdown");
-			if (quitES("/tmp/es-shutdown") != 0)
+			if (quitES(QuitMode::SHUTDOWN) != 0)
 				LOG(LogWarning) << "Shutdown terminated with non-zero result!";
-		}, "아니오", nullptr));
+		}, "NO", nullptr));
 	});
 	row.addElement(std::make_shared<TextComponent>(window, "시스템 종료", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	s->addRow(row);
@@ -534,7 +587,7 @@ void GuiMenu::addVersionInfo()
 
 	mVersion.setFont(Font::get(FONT_SIZE_SMALL));
 	mVersion.setColor(0x5E5E5EFF);
-	mVersion.setText("EMULATIONSTATION V" + Utils::String::toUpper(PROGRAM_VERSION_STRING) + buildDate);
+	mVersion.setText("EMULATIONSTATION KO V" + Utils::String::toUpper(PROGRAM_VERSION_STRING) + buildDate);
 	mVersion.setHorizontalAlignment(ALIGN_CENTER);
 	addChild(&mVersion);
 }

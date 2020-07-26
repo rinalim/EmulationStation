@@ -29,7 +29,7 @@ CollectionSystemManager::CollectionSystemManager(Window* window) : mWindow(windo
 		{ AUTO_ALL_GAMES,       "전체",          "전체 게임",         "filename, ascending",      "auto-allgames",           false },
 		{ AUTO_LAST_PLAYED,     "최근",       "최근 실행",       "last played, descending",  "auto-lastplayed",         false },
 		{ AUTO_FAVORITES,       "즐겨찾기",    "즐겨찾기",         "filename, ascending",      "auto-favorites",          false },
-		{ CUSTOM_COLLECTION,    myCollectionsName,  "collections",    "filename, ascending",      "custom-collections",      true }
+		{ CUSTOM_COLLECTION,    myCollectionsName,  "컬렉션",    "filename, ascending",      "custom-collections",      true }
 	};
 
 	// create a map
@@ -144,7 +144,7 @@ void CollectionSystemManager::loadCollectionSystems()
 void CollectionSystemManager::loadEnabledListFromSettings()
 {
 	// we parse the auto collection settings list
-	std::vector<std::string> autoSelected = Utils::String::commaStringToVector(Settings::getInstance()->getString("CollectionSystemsAuto"));
+	std::vector<std::string> autoSelected = Utils::String::commaStringToVector(Settings::getInstance()->getString("CollectionSystemsAuto"), true);
 
 	// iterate the map
 	for(std::map<std::string, CollectionSystemData>::iterator it = mAutoCollectionSystemsData.begin() ; it != mAutoCollectionSystemsData.end() ; it++ )
@@ -153,7 +153,7 @@ void CollectionSystemManager::loadEnabledListFromSettings()
 	}
 
 	// we parse the custom collection settings list
-	std::vector<std::string> customSelected = Utils::String::commaStringToVector(Settings::getInstance()->getString("CollectionSystemsCustom"));
+	std::vector<std::string> customSelected = Utils::String::commaStringToVector(Settings::getInstance()->getString("CollectionSystemsCustom"), true);
 
 	// iterate the map
 	for(std::map<std::string, CollectionSystemData>::iterator it = mCustomCollectionSystemsData.begin() ; it != mCustomCollectionSystemsData.end() ; it++ )
@@ -284,7 +284,7 @@ void CollectionSystemManager::updateCollectionSystem(FileData* file, CollectionS
 			trimCollectionCount(rootFolder, LAST_PLAYED_MAX);
 			ViewController::get()->onFileChanged(rootFolder, FILE_METADATA_CHANGED);
 		}
-		else 
+		else
 			ViewController::get()->onFileChanged(rootFolder, FILE_SORTED);
 	}
 }
@@ -448,6 +448,8 @@ void CollectionSystemManager::exitEditMode()
 	mWindow->setInfoPopup(s);
 	mIsEditingCustom = false;
 	mEditingCollection = "즐겨찾기";
+
+	mEditingCollectionSystemData->system->onMetaDataSavePoint();
 }
 
 // adds or removes a game from a specific collection
@@ -521,6 +523,9 @@ bool CollectionSystemManager::toggleGameInCollection(FileData* file)
 				md->set("favorite", "false");
 			}
 			file->getSourceFileData()->getSystem()->getIndex()->addToIndex(file);
+
+			file->getSourceFileData()->getSystem()->onMetaDataSavePoint();
+
 			refreshCollectionSystems(file->getSourceFileData());
 		}
 		if (adding)
@@ -578,7 +583,7 @@ void CollectionSystemManager::updateCollectionFolderMetadata(SystemData* sys)
 	std::string desc = "현재 컬렉션이 비어있습니다.";
 	std::string rating = "0";
 	std::string players = "1";
-	std::string releasedate = "N/A";
+	std::string releasedate = "없음";
 	std::string developer = "없음";
 	std::string genre = "없음";
 	std::string video = "";
@@ -621,7 +626,7 @@ void CollectionSystemManager::updateCollectionFolderMetadata(SystemData* sys)
 			}
 		}
 
-		desc = "현재 컬렉션에는 " + games_list + " 등을 포함한 " + std::to_string(games_counter) + "개의 게임이 있습니다." ;
+		desc = "현재 컬렉션에는 " + games_list + " 등을 포함한 " + std::to_string(games_counter) + "개의 게임이 있습니다.";
 
 		FileData* randomGame = sys->getRandomGame();
 

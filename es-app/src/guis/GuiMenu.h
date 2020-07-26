@@ -26,6 +26,8 @@ private:
 	void openScreensaverOptions();
 	void openSoundSettings();
 	void openUISettings();
+	void openInfoMenu();
+	void getInfo(const char *cmdline, char info_buff[], int size);
 
 	MenuComponent mMenu;
 	TextComponent mVersion;
