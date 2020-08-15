@@ -508,7 +508,7 @@ void GuiMenu::openInfoMenu()
 	row.elements.clear();
 	// 전체, 남은 용량 표시
 	char df[100];
-	getInfo("df -h | grep /dev/root | awk '{print \"전체용량 : \"$2 \" / 남은용량 : \"  $3}'", df, sizeof(df));
+	getInfo("df -h | grep /dev/root | awk '{print \"전체용량 : \"$2 \" / 사용 : \"  $3}'", df, sizeof(df));
 	row.addElement(std::make_shared<TextComponent>(window, df, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	s->addRow(row);
 
