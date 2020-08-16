@@ -26,9 +26,9 @@ CollectionSystemManager::CollectionSystemManager(Window* window) : mWindow(windo
 {
 	CollectionSystemDecl systemDecls[] = {
 		//type                  name            long name            //default sort              // theme folder            // isCustom
-		{ AUTO_ALL_GAMES,       "전체",          "전체 게임",         "filename, ascending",      "auto-allgames",           false },
-		{ AUTO_LAST_PLAYED,     "최근",       "최근 실행",       "last played, descending",  "auto-lastplayed",         false },
-		{ AUTO_FAVORITES,       "즐겨찾기",    "즐겨찾기",         "filename, ascending",      "auto-favorites",          false },
+		{ AUTO_ALL_GAMES,       "all",          "전체 게임",         "filename, ascending",      "auto-allgames",           false },
+		{ AUTO_LAST_PLAYED,     "recent",       "최근 실행",       "last played, descending",  "auto-lastplayed",         false },
+		{ AUTO_FAVORITES,       "favorites",    "즐겨찾기",         "filename, ascending",      "auto-favorites",          false },
 		{ CUSTOM_COLLECTION,    myCollectionsName,  "컬렉션",    "filename, ascending",      "custom-collections",      true }
 	};
 
@@ -255,7 +255,7 @@ void CollectionSystemManager::updateCollectionSystem(FileData* file, CollectionS
 			fileIndex->removeFromIndex(collectionEntry);
 			collectionEntry->refreshMetadata();
 			// found and we are removing
-			if (name == "즐겨찾기" && file->metadata.get("favorite") == "false") {
+			if (name == "favorites" && file->metadata.get("favorite") == "false") {
 				// need to check if still marked as favorite, if not remove
 				ViewController::get()->getGameListView(curSys).get()->remove(collectionEntry, false);
 			}
@@ -269,8 +269,8 @@ void CollectionSystemManager::updateCollectionSystem(FileData* file, CollectionS
 		else
 		{
 			// we didn't find it here - we need to check if we should add it
-			if (name == "최근" && file->metadata.get("playcount") > "0" && includeFileInAutoCollections(file) ||
-				name == "즐겨찾기" && file->metadata.get("favorite") == "true") {
+			if (name == "recent" && file->metadata.get("playcount") > "0" && includeFileInAutoCollections(file) ||
+				name == "favorites" && file->metadata.get("favorite") == "true") {
 				CollectionFileData* newGame = new CollectionFileData(file, curSys);
 				rootFolder->addChild(newGame);
 				fileIndex->addToIndex(newGame);
@@ -279,7 +279,7 @@ void CollectionSystemManager::updateCollectionSystem(FileData* file, CollectionS
 			}
 		}
 		rootFolder->sort(getSortTypeFromString(mCollectionSystemDeclsIndex[name].defaultSort));
-		if (name == "최근")
+		if (name == "recent")
 		{
 			trimCollectionCount(rootFolder, LAST_PLAYED_MAX);
 			ViewController::get()->onFileChanged(rootFolder, FILE_METADATA_CHANGED);
@@ -626,7 +626,8 @@ void CollectionSystemManager::updateCollectionFolderMetadata(SystemData* sys)
 			}
 		}
 
-		desc = "현재 컬렉션에는 " + games_list + " 등을 포함한 " + std::to_string(games_counter) + "개의 게임이 있습니다.";
+		desc = "현재 컬렉션에는 " + games_list + " 등을 포함한 "
+				+ std::to_string(games_counter) + "개의 게임이 있습니다.";
 
 		FileData* randomGame = sys->getRandomGame();
 

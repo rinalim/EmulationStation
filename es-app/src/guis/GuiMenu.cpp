@@ -508,8 +508,14 @@ void GuiMenu::openInfoMenu()
 	row.elements.clear();
 	// 전체, 남은 용량 표시
 	char df[100];
-	getInfo("df -h | grep /dev/root | awk '{print \"전체용량 : \"$2 \" / 남은용량 : \"  $3}'", df, sizeof(df));
+	getInfo("df -h | grep /dev/root | awk '{print \"전체용량 : \"$2 \" / 여유용량 : \"  $4}'", df, sizeof(df));
 	row.addElement(std::make_shared<TextComponent>(window, df, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	s->addRow(row);
+
+	// 빌드버전
+	row.elements.clear();
+	char version[100] = "----- 라즈겜동 에디션 2.0 ------";
+	row.addElement(std::make_shared<TextComponent>(window, version, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	s->addRow(row);
 
 	mWindow->pushGui(s);

@@ -15,7 +15,7 @@ const int logoBuffersRight[] = { 1, 2, 5 };
 
 SystemView::SystemView(Window* window) : IList<SystemViewData, SystemData*>(window, LIST_SCROLL_STYLE_SLOW, LIST_ALWAYS_LOOP),
 										 mViewNeedsReload(true),
-										 mSystemInfo(window, "SYSTEM INFO", Font::get(FONT_SIZE_SMALL), 0x33333300, ALIGN_CENTER)
+										 mSystemInfo(window, "시스템 정보", Font::get(FONT_SIZE_SMALL), 0x33333300, ALIGN_CENTER)
 {
 	mCamOffset = 0;
 	mExtrasCamOffset = 0;
@@ -121,7 +121,7 @@ void SystemView::populate()
 		if (!UIModeController::getInstance()->isUIModeFull())
 		{
 			Settings::getInstance()->setString("UIMode", "Full");
-			mWindow->pushGui(new GuiMsgBox(mWindow, "The selected UI mode has nothing to show,\n returning to UI mode: FULL", "OK", nullptr));
+			mWindow->pushGui(new GuiMsgBox(mWindow, "선택된 UI 모드에 표시할 내용이 없습니다.\n 다음 UI 모드로 복귀합니다: FULL", "확인", nullptr));
 		}
 	}
 }
@@ -258,7 +258,7 @@ void SystemView::onCursorChanged(const CursorState& /*state*/)
 		if (!getSelected()->isGameSystem())
 			ss << "설정";
 		else
-			ss << gameCount << "개의 게임 이용가능";
+			ss << gameCount << " 게임" << "개의 게임 이용가능";
 
 		mSystemInfo.setText(ss.str());
 	}, false, 1);
