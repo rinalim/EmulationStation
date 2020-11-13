@@ -66,7 +66,7 @@ GuiGeneralScreensaverOptions::GuiGeneralScreensaverOptions(Window* window, const
 	float max =  120.f;
 	auto system_sleep_time = std::make_shared<SliderComponent>(mWindow, 0.f, max, stepw, "m");
 	system_sleep_time->setValue((float)(Settings::getInstance()->getInt("SystemSleepTime") / Settings::ONE_MINUTE_IN_MS));
-	addWithLabel("SYSTEM SLEEP AFTER", system_sleep_time);
+	addWithLabel("다음 시간 후 시스템 슬립", system_sleep_time);
 	addSaveFunc([this, system_sleep_time, screensaver_time, max, stepw] {
 		if (screensaver_time->getValue() > system_sleep_time->getValue() && system_sleep_time->getValue() > 0) {
 			int steps = Math::min(1 + (int)(screensaver_time->getValue() / stepw), (int)(max/stepw));
@@ -74,16 +74,16 @@ GuiGeneralScreensaverOptions::GuiGeneralScreensaverOptions(Window* window, const
 			system_sleep_time->setValue((float)adj_system_sleep_time);
 			std::string msg = "";
 			if (!Settings::getInstance()->getBool("SystemSleepTimeHintDisplayed")) {
-				msg += "One time note: Enabling the system sleep time will trigger user-defined scripts.";
-				msg += "\nPlease see Retropie/Emulationstation Wiki on events for details.";
+				msg += "참고: 시스템 슬립 시간을 설정하면 사용자 정의된 스크립트를 수행합니다.";
+				msg += "\nRetropie/Emulationstation 위키에서 자세한 정보를 확인하세요.";
 				Settings::getInstance()->setBool("SystemSleepTimeHintDisplayed", true);
 			}
 			if (msg.length() > 0) {
 				msg += "\n\n";
 			}
-			msg += "The system sleep delay is enabled, but is less than or equal to the screen saver start delay.";
-			msg	+= "\n\nAdjusted system sleep time to " + std::to_string(adj_system_sleep_time) + " minutes.";
-			mWindow->pushGui(new GuiMsgBox(mWindow, msg, "OK", [] { return; }));
+			msg += "시스템 슬립 지연이 설정되었으나 화면보호기 기동 시간보다 짧습니다.";
+			msg	+= "\n\n시스템 슬립 시간을 " + std::to_string(adj_system_sleep_time) + " 분으로 변경해주세요.";
+			mWindow->pushGui(new GuiMsgBox(mWindow, msg, "확인", [] { return; }));
 		}
 		Settings::getInstance()->setInt("SystemSleepTime", (int)Math::round(system_sleep_time->getValue()) * Settings::ONE_MINUTE_IN_MS);
 	});

@@ -258,7 +258,7 @@ void SystemView::onCursorChanged(const CursorState& /*state*/)
 		if (!getSelected()->isGameSystem())
 			ss << "설정";
 		else
-			ss << gameCount << " 게임" << "개의 게임 이용가능";
+			ss << gameCount << "개의 게임 이용가능";
 
 		mSystemInfo.setText(ss.str());
 	}, false, 1);
