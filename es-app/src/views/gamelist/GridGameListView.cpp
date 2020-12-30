@@ -11,6 +11,9 @@
 #endif
 #include "components/VideoVlcComponent.h"
 
+// rinalim
+#include <fstream>
+
 GridGameListView::GridGameListView(Window* window, FileData* root) :
 	ISimpleGameListView(window, root),
 	mGrid(window), mMarquee(window),
@@ -339,6 +342,11 @@ void GridGameListView::updateInfoPanel()
 		}
 
 		fadingOut = false;
+		
+		// rinalim
+		std::ofstream out("/tmp/PieMarquee.log");
+		out << "Game: " << file->getPath();
+		out.close();
 	}
 
 	std::vector<GuiComponent*> comps = getMDValues();
