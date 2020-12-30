@@ -17,6 +17,9 @@
 #include "SystemData.h"
 #include "Window.h"
 
+// rinalim
+#include <fstream>
+
 ViewController* ViewController::sInstance = NULL;
 
 ViewController* ViewController::get()
@@ -96,6 +99,11 @@ void ViewController::goToSystemView(SystemData* system)
 	PowerSaver::setState(true);
 
 	playViewTransition();
+
+	// rinalim
+	std::ofstream out("/tmp/PieMarquee.log");
+	out << "SystemView";
+	out.close();
 }
 
 void ViewController::goToNextGameList()
@@ -116,6 +124,11 @@ void ViewController::goToPrevGameList()
 
 void ViewController::goToGameList(SystemData* system)
 {
+	// rinalim
+	std::ofstream out("/tmp/PieMarquee.log");
+	out << system->getName().c_str();
+	out.close();
+	
 	if(mState.viewing == SYSTEM_SELECT)
 	{
 		// move system list
