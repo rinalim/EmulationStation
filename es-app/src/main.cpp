@@ -27,6 +27,14 @@
 
 #include <FreeImage.h>
 
+//rinalim
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <sys/stat.h>
+#include "guis/GuiInfoPopup.h"
+
 bool scrape_cmdline = false;
 
 bool parseArgs(int argc, char* argv[])
@@ -389,6 +397,9 @@ int main(int argc, char* argv[])
 
 	bool running = true;
 
+	//rinalim
+	int lastFileTime = SDL_GetTicks();	
+	
 	while(running)
 	{
 		SDL_Event event;
@@ -434,6 +445,85 @@ int main(int argc, char* argv[])
 		if(deltaTime < 0)
 			deltaTime = 1000;
 
+		// rinalim
+		// Check every one second
+		int deltaFileTime = SDL_GetTicks() - lastFileTime;
+		//std::cout << "delta " << deltaFileTime << std::endl;
+		if(deltaFileTime < 0)
+			lastFileTime = SDL_GetTicks();
+		if(deltaFileTime > 1000)
+		{
+			//std::cout << "fileCheck" << std::endl;
+			lastFileTime = SDL_GetTicks();
+			std::string system = "Unknwon";
+			std::string romfile = "Unknown";
+			// Check if the file is not empty
+			struct stat stat_buf;
+			int rc = stat("/tmp/PieRFID.log", &stat_buf);
+			int size = rc == 0 ? stat_buf.st_size : -1;
+			if(size > 0)
+			{
+				std::ifstream in("/tmp/PieRFID.log");
+				if (in.peek() != EOF)
+					std::getline(in, system);
+				if (in.peek() != EOF)
+					std::getline(in, romfile);
+				in.close();
+				std::cout << system << ", " << romfile << std::endl;
+
+				if(system != "Unknwon" && romfile != "Unknown")
+				{
+					std::vector<SystemData*> Systems = SystemData::sSystemVector;
+					for(auto i = Systems.begin(); i != Systems.end(); i++)
+					{
+						if((*i)->getName() == system)
+						{
+							std::vector<std::string> v;
+							std::string token;
+							std::stringstream ss(romfile);
+							while (getline(ss, token, '/')) {
+								v.push_back(token);
+							}
+							
+							//const std::unordered_map<std::string, FileData*>& children = (*i)->getRootFolder()->getChildrenByFilename();
+							FileData* searchFolder = (*i)->getRootFolder();
+							if(v.size() == 2)
+							{
+								const std::unordered_map<std::string, FileData*>& subfolders = (*i)->getRootFolder()->getChildrenByFilename();
+								bool found = subfolders.find(v.front()) != subfolders.end();
+								if(found)
+								{
+									searchFolder = subfolders.at(v.front());
+									romfile = v.back();
+								}
+							}
+							const std::unordered_map<std::string, FileData*>& children = searchFolder->getChildrenByFilename();
+							bool found = children.find(romfile) != children.end();
+							if(found)
+							{
+								FileData* game = children.at(romfile);
+								ViewController::get()->launch(game);
+							}
+							else
+							{
+								GuiInfoPopup* s = new GuiInfoPopup(&window, "Game not found in library", 4000);
+								window.setInfoPopup(s);
+							}
+						}
+					}
+				}
+				else
+				{
+					GuiInfoPopup* s = new GuiInfoPopup(&window, "Invalid game loading request", 4000);
+					window.setInfoPopup(s);						
+				}
+
+				// Delete data in the file
+				std::ofstream out("/tmp/PieRFID.log");
+				out.close();
+			}
+		}
+		
 		window.update(deltaTime);
 		window.render();
 		Renderer::swapBuffers();
